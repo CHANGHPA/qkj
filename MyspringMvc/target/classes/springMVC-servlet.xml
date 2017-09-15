@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.3.xsd">
+
+	
+	<!-- 1）配置扫描组件 -->
+	<context:component-scan base-package="com.hp"/>
+	<!-- 2)mvc 驱动 -->
+	<mvc:resources location="/stract/" mapping="/stract/**"></mvc:resources>  
+  	<mvc:annotation-driven/>
+  	<mvc:annotation-driven>
+		<!-- 消息转换器,解决responseBody返回中外乱码问题 -->
+		<mvc:message-converters register-defaults="true">
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes" value="text/plain;charset=UTF-8" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+  
+  	
+  	<!--3）视图解析  -->
+	  	<bean id="viewResolver"
+		      class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		    <property name="prefix" value="/WEB-INF/jsp/"/>
+		    <property name="suffix" value=".jsp"/>
+		</bean>
+	<!--1. 配置数据源 -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			
+			<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+			<property name="url" value="jdbc:mysql://localhost/boardmessage?characterEncoding=UTF-8"/>
+			<property name="username" value="root"/>
+			<property name="password" value=""/>
+	</bean>
+	<!--2. 創建session工廠類 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" >
+			<property name="configLocation">
+				<value>
+					classpath:mybatis-config.xml
+				</value>
+			</property>
+			<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<bean  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.hp.mapper"></property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+</beans>
